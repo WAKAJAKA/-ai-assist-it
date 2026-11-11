@@ -8,7 +8,7 @@
 
 - **Пользователи**: полный CRUD — просмотр списка, получение по ID, создание, обновление, удаление
 - **Задачи**: полный CRUD — просмотр списка, получение по ID, создание, обновление, удаление
-- **Веб-документация**: просмотр описания всех маршрутов и отправка тестовых запросов через браузер
+- **Веб-документация**: просмотр описания всех маршрутов и отправка тестовых запросов через Swagger UI
 - **Единый формат ответов**: все успешные данные возвращаются в объекте с отметкой успеха (`"success": true`) и полезной нагрузкой (`"data"`)
 
 ---
@@ -17,137 +17,119 @@
 
 Для сборки и запуска проекта потребуется:
 
-1. **Go** — версии `1.22` или новее
+1. **Go** — версии `1.22` или новее ([скачать с официального сайта](https://go.dev/dl/))
 2. **Git** — для клонирования репозитория
 
-Установка Go:
-- Скачайте с [golang.org/dl](https://golang.org/dl) и установите
-- Проверьте установку: `go version`
-
----
-
-## Установка и запуск
-
-### 1. Клонирование и установка зависимостей
-
+Проверка установки:
 ```bash
+go version
+Установка и запуск
+1. Клонирование и установка зависимостей
+Bash
 git clone https://github.com/WAKAJAKA/ai-assist-it.git
 cd ai-assist-it
 go mod download
-```
-
-### 2. Генерация Swagger-документации
-
-```bash
-swag init
-```
-
-В каталоге `docs/` будут созданы файлы:
-- `docs.go`
-- `swagger.json`
-- `swagger.yaml`
-
-### 3. Запуск сервера
-
-```bash
+2. Установка swag и генерация Swagger-документации
+Для генерации файлов документации установите утилиту swag (если еще не установлена):
+Bash
+go install github.com/swaggo/swag/cmd/swag@latest
+Сгенерируйте спецификацию:
+Bash
+swag init -g main.go
+В каталоге docs/ будут обновлены файлы:
+docs.go
+swagger.json
+swagger.yaml
+3. Запуск сервера
+Bash
 go run main.go
-```
-
-Сервер запустится на **http://localhost:8080**
-
----
-
-## Документация API (Swagger UI)
-
+Сервер запустится по адресу: http://localhost:8080
+Документация API (Swagger UI)
 Интерактивная документация и песочница:
-👉 **http://localhost:8080/swagger/index.html**
-
-Сырая спецификация JSON:
-**http://localhost:8080/swagger/doc.json**
-
----
-
-## Примеры использования API (cURL)
-
-Базовый адрес: `http://localhost:8080`
-
-### Задачи (Todos)
-
-**Получить список всех задач**
-```bash
-curl -X GET http://localhost:8080/todos -H "Accept: application/json"
-```
-
-**Создать новую задачу**
-```bash
-curl -X POST http://localhost:8080/todos \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": 1, "title": "Новая задача", "description": "Описание", "done": false}'
-```
-
-**Получить задачу по ID**
-```bash
-curl -X GET http://localhost:8080/todos/1 -H "Accept: application/json"
-```
-
-**Обновить задачу**
-```bash
-curl -X PUT http://localhost:8080/todos/1 \
-  -H "Content-Type: application/json" \
-  -d '{"title": "Обновлённая задача", "done": true}'
-```
-
-**Удалить задачу**
-```bash
-curl -i -X DELETE http://localhost:8080/todos/1
-```
-
-### Пользователи (Users)
-
-**Получить список всех пользователей**
-```bash
-curl -X GET http://localhost:8080/users -H "Accept: application/json"
-```
-
-**Создать нового пользователя**
-```bash
-curl -X POST http://localhost:8080/users \
+👉 http://localhost:8080/swagger/index.html
+Спецификация OpenAPI (JSON):
+http://localhost:8080/docs/swagger.json
+Примеры использования API (cURL)
+Базовый адрес API: http://localhost:8080/api/v1
+Пользователи (Users)
+1. Получить список всех пользователей
+Bash
+curl -X GET http://localhost:8080/api/v1/users -H "Accept: application/json"
+2. Создать нового пользователя
+Bash
+curl -X POST http://localhost:8080/api/v1/users \
   -H "Content-Type: application/json" \
   -d '{"email": "test@mail.com", "name": "Иван"}'
-```
-
-**Получить пользователя по ID**
-```bash
-curl -X GET http://localhost:8080/users/1 -H "Accept: application/json"
-```
-
-**Обновить пользователя**
-```bash
-curl -X PUT http://localhost:8080/users/1 \
+Пример ответа (HTTP 201):
+JSON
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "email": "test@mail.com",
+    "name": "Иван",
+    "created_at": "2026-03-30T10:00:00Z"
+  }
+}
+3. Получить пользователя по ID
+Bash
+curl -X GET http://localhost:8080/api/v1/users/1 -H "Accept: application/json"
+4. Обновить пользователя
+Bash
+curl -X PUT http://localhost:8080/api/v1/users/1 \
   -H "Content-Type: application/json" \
   -d '{"name": "Иван Иванов"}'
-```
-
-**Удалить пользователя**
-```bash
-curl -i -X DELETE http://localhost:8080/users/1
-```
-
----
-
-## Примеры ошибок
-
-| Ситуация | Статус | Ответ |
-|----------|--------|-------|
-| Неверный ID (не число) | 400 Bad Request | `Неверный ID` |
-| Задача/пользователь не найдена | 404 Not Found | `Задача не найдена` / `Пользователь не найден` |
-| Невалидный JSON | 400 Bad Request | `Невалидный запрос` |
-
----
-
-## Структура проекта
-
-```
+5. Удалить пользователя
+Bash
+curl -i -X DELETE http://localhost:8080/api/v1/users/1
+Ответ: HTTP 204 No Content (тело ответа пустое).
+Задачи (Todos)
+1. Получить список всех задач
+Bash
+curl -X GET http://localhost:8080/api/v1/todos -H "Accept: application/json"
+2. Создать новую задачу
+Bash
+curl -X POST http://localhost:8080/api/v1/todos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "user_id": 1,
+    "title": "Новая задача",
+    "description": "Описание задачи",
+    "done": false
+  }'
+Пример ответа (HTTP 201):
+JSON
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "user_id": 1,
+    "title": "Новая задача",
+    "description": "Описание задачи",
+    "done": false,
+    "created_at": "2026-03-30T10:05:00Z",
+    "updated_at": "2026-03-30T10:05:00Z"
+  }
+}
+3. Получить задачу по ID
+Bash
+curl -X GET http://localhost:8080/api/v1/todos/1 -H "Accept: application/json"
+4. Обновить задачу
+Bash
+curl -X PUT http://localhost:8080/api/v1/todos/1 \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Обновлённая задача", "done": true}'
+5. Удалить задачу
+Bash
+curl -i -X DELETE http://localhost:8080/api/v1/todos/1
+Ответ: HTTP 204 No Content (тело ответа пустое).
+Примеры ответов с ошибками
+Ситуация	HTTP-статус	Текст ответа
+Неверный ID (не число)	400 Bad Request	Неверный ID
+Задача / пользователь не найден	404 Not Found	Задача не найдена / Пользователь не найден
+Невалидный формат JSON	400 Bad Request	Невалидный запрос
+Структура проекта
+Text
 .
 ├── main.go              # Точка входа: инициализация маршрутов, запуск сервера
 ├── docs/                # Сгенерированные файлы Swagger
@@ -164,14 +146,7 @@ curl -i -X DELETE http://localhost:8080/users/1
 ├── go.mod               # Зависимости проекта
 ├── go.sum               # Контрольные суммы пакетов
 └── README.md            # Документация проекта
-```
-
----
-
-## Лицензия
-
-**MIT**
-
+Лицензия и автор
+Лицензия: MIT
 Автор: Когут И.В.
-
 Репозиторий: https://github.com/WAKAJAKA/ai-assist-it.git

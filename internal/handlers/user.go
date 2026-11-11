@@ -20,7 +20,13 @@ type UserHandler struct {
 	users  map[int]models.User
 	nextID int
 }
-
+// NewUserHandler создает и инициализирует новый экземпляр UserHandler.
+// @Summary      Инициализировать обработчик пользователей
+// @Description  Создает новый экземпляр UserHandler с пустым хранилищем пользователей
+// @Tags         users
+// @Produce      json
+// @Success      200  {object}  models.SuccessResponse  "Обработчик успешно инициализирован"
+// @Router       /users/init [get]
 func NewUserHandler() *UserHandler {
 	return &UserHandler{
 		users:  make(map[int]models.User),
@@ -28,14 +34,13 @@ func NewUserHandler() *UserHandler {
 	}
 }
 
-// ListUsers lists all users
-// @Summary Получить список всех пользователей
-// @Description Получить список всех пользователей
-// @Tags users
-// @Accept json
-// @Produce json
-// @Success 200 {object} models.SuccessResponse
-// @Router /users [get]
+// ListUsers возвращает список всех пользователей.
+// @Summary      Получить список пользователей
+// @Description  Возвращает массив всех зарегистрированных пользователей
+// @Tags         users
+// @Produce      json
+// @Success      200  {object}  models.SuccessResponse{data=[]models.User}  "Список пользователей успешно получен"
+// @Router       /users [get]
 func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -53,17 +58,17 @@ func (h *UserHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// GetUser gets a user by ID
-// @Summary Получить пользователя по ID
-// @Description Получить пользователя по его ID
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 200 {object} models.SuccessResponse
-// @Failure 400 {object} models.ErrorResponse
-// @Failure 404 {object} models.ErrorResponse
-// @Router /users/{id} [get]
+// GetUser возвращает пользователя по его идентификатору.
+// @Summary      Получить пользователя по ID
+// @Description  Возвращает данные одного пользователя по его числовому идентификатору
+// @Tags         users
+// @Produce      json
+// @Param        id   path      int                                       true  "Идентификатор пользователя"  minimum(1)
+// @Success      200  {object}  models.SuccessResponse{data=models.User}  "Пользователь успешно найден"
+// @Failure      400  {string}  string                                    "Неверный ID (некорректный формат)"
+// @Failure      404  {string}  string                                    "Пользователь не найден"
+// @Router       /users/{id} [get]
+
 func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -89,16 +94,16 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// CreateUser creates a new user
-// @Summary Создать нового пользователя
-// @Description Создать нового пользователя с email и именем
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param body body models.CreateUserRequest true "User data"
-// @Success 201 {object} models.SuccessResponse{data=models.User} "Пользователь успешно создан"
-// @Failure 400 {object} models.ErrorResponse "Неверный формат запроса"
-// @Router /users [post]
+// CreateUser создает нового пользователя.
+// @Summary      Создать пользователя
+// @Description  Создает нового пользователя с указанным email и именем
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        body  body      models.CreateUserRequest                  true  "Данные нового пользователя"
+// @Success      201   {object}  models.SuccessResponse{data=models.User}  "Пользователь успешно создан"
+// @Failure      400   {string}  string                                    "Невалидный запрос (ошибка парсинга JSON)"
+// @Router       /users [post]
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var req models.CreateUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -127,18 +132,18 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// UpdateUser updates an existing user
-// @Summary Обновить существующего пользователя
-// @Description Обновить пользователя по ID
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Param body body models.UpdateUserRequest true "Updated user data"
-// @Success 200 {object} models.SuccessResponse{data=models.User} "Пользователь успешно обновлен"
-// @Failure 400 {object} models.ErrorResponse "Неверный формат запроса"
-// @Failure 404 {object} models.ErrorResponse "Пользователь не найден"
-// @Router /users/{id} [put]
+// UpdateUser обновляет существующего пользователя по ID.
+// @Summary      Обновить пользователя
+// @Description  Обновляет поля пользователя по его числовому ID (email, имя)
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        id    path      int                       true  "Идентификатор пользователя"          minimum(1)
+// @Param        body  body      models.UpdateUserRequest  true  "Данные для обновления пользователя"
+// @Success      200   {object}  models.SuccessResponse{data=models.User}  "Пользователь успешно обновлен"
+// @Failure      400   {string}  string                                    "Неверный ID или невалидный JSON"
+// @Failure      404   {string}  string                                    "Пользователь не найден"
+// @Router       /users/{id} [put]
 func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
@@ -179,17 +184,15 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// DeleteUser deletes a user by ID
-// @Summary Удалить пользователя
-// @Description Удалить пользователя по его ID
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param id path int true "User ID"
-// @Success 204 "Пользователь успешно удален"
-// @Failure 400 {object} models.ErrorResponse "Неверный формат запроса"
-// @Failure 404 {object} models.ErrorResponse "Пользователь не найден"
-// @Router /users/{id} [delete]
+// DeleteUser удаляет пользователя по ID.
+// @Summary      Удалить пользователя
+// @Description  Удаляет пользователя из системы по его числовому идентификатору
+// @Tags         users
+// @Param        id   path      int     true  "Идентификатор пользователя"  minimum(1)
+// @Success      204  "Пользователь успешно удален (нет содержимого)"
+// @Failure      400  {string}  string  "Неверный ID (некорректный формат)"
+// @Failure      404  {string}  string  "Пользователь не найден"
+// @Router       /users/{id} [delete]
 func (h *UserHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)

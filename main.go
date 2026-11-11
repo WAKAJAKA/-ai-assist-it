@@ -22,6 +22,10 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/index.html")
+	})
+
 	usersRouter := chi.NewRouter()
 	userHandler := handlers.NewUserHandler()
 	usersRouter.Get("/", userHandler.ListUsers)
