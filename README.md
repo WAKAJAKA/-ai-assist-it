@@ -28,42 +28,41 @@ go version
 
 ---
 
-## Установка и запуск
+## Запуск проекта
 
-### 1. Клонирование и установка зависимостей
-
-```bash
-git clone https://github.com/WAKAJAKA/ai-assist-it.git
-cd ai-assist-it
-go mod download
-```
-
-### 2. Установка swag и генерация Swagger-документации
-
-Для генерации файлов документации установите утилиту swag (если еще не установлена):
-
-```bash
-go install github.com/swaggo/swag/cmd/swag@latest
-```
-
-Сгенерируйте спецификацию:
-
-```bash
-swag init -g main.go
-```
-
-В каталоге `docs/` будут обновлены файлы:
-- `docs.go`
-- `swagger.json`
-- `swagger.yaml`
-
-### 3. Запуск сервера
+Если вам нужно просто запустить сервис, готовая документация уже сгенерирована в папке `docs/`:
 
 ```bash
 go run main.go
 ```
 
-Сервер запустится по адресу: **http://localhost:8080**
+Интерфейс Swagger UI откроется по адресу: **http://localhost:8080/swagger/index.html**
+
+---
+
+### Для разработчиков: обновление документации Swagger
+
+Если вы изменили хэндлеры, модели или Swagger-аннотации, перегенерируйте спецификацию:
+
+1. Установите утилиту `swag` (если ещё не установлена):
+
+```bash
+go install github.com/swaggo/swag/cmd/swag@latest
+```
+
+2. Сгенерируйте обновлённые файлы документации:
+
+```bash
+swag init -g main.go --parseInternal
+```
+
+> Если терминал пишет `swag: command not found`, используйте `$(go env GOPATH)/bin/swag init -g main.go --parseInternal`
+
+Команда обновит файлы в каталоге `docs/`:
+
+- `docs.go`
+- `swagger.json`
+- `swagger.yaml`
 
 ---
 
