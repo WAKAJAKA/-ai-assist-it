@@ -225,10 +225,19 @@ curl -i -X DELETE http://localhost:8080/api/v1/todos/1
 │   └── models/          # Модели данных и DTO
 │       ├── todo.go
 │       └── user.go
+├── static/              # Статические файлы
+│   └── index.html       # Welcome-страница (http://localhost:8080/)
 ├── go.mod               # Зависимости проекта
 ├── go.sum               # Контрольные суммы пакетов
 └── README.md            # Документация проекта
 ```
+
+### Welcome-страница
+
+При переходе на `http://localhost:8080/` открывается welcome-страница (`static/index.html`), которая содержит:
+- Подтверждение успешного запуска сервиса
+- Ссылки на основные эндпоинты API
+- Ссылку на Swagger UI
 
 ---
 
