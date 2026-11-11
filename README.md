@@ -246,4 +246,4 @@ curl -i -X DELETE http://localhost:8080/api/v1/todos/1
 
 **Автор**: Когут И.В.
 
-**Репозиторий**: https://github.com/WAKAJAKA/ai-assist-it.git
+**Репозиторий**: https://github.com/WAKAJAKA/-ai-assist-it
