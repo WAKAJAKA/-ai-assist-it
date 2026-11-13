@@ -177,7 +177,7 @@ curl -X GET http://localhost:8080/api/v1/todos -H "Accept: application/json"
 **2. Создать новую задачу**
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/todos \
+curl -X POST http://localhost:8080/api/v1/todos/ \
   -H "Content-Type: application/json" \
   -d '{
     "user_id": 1,
