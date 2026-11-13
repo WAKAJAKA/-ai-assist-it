@@ -3,6 +3,7 @@
 package models
 
 import "time"
+
 // User представляет пользователя в системе.
 // @Description Модель пользователя с базовыми регистрационными данными
 type User struct {
@@ -22,11 +23,11 @@ type User struct {
 // CreateUserRequest содержит входные данные для регистрации/создания нового пользователя.
 // @Description Данные для регистрации нового пользователя (DTO)
 type CreateUserRequest struct {
-	// Email — адрес электронной почты (обязательное поле, должен быть валидным email).
-	Email string `json:"email" validate:"required,email" binding:"required" format:"email" example:"ivan@example.com"`
+	// Email — адрес электронной почты.
+	Email string `json:"email" format:"email" example:"ivan@example.com"`
 
-	// Name — имя пользователя (обязательное поле, до 100 символов).
-	Name string `json:"name" validate:"required,max=100" binding:"required" maxLength:"100" example:"Иван Иванов"`
+	// Name — имя пользователя.
+	Name string `json:"name" example:"Иван Иванов"`
 }
 
 // UpdateUserRequest содержит данные для частичного обновления профиля пользователя.
@@ -34,11 +35,11 @@ type CreateUserRequest struct {
 // от передачи пустого значения.
 // @Description Данные для частичного обновления профиля пользователя (все поля опциональны)
 type UpdateUserRequest struct {
-	// Email — новый адрес электронной почты (опционально, должен быть валидным email).
-	Email *string `json:"email" validate:"omitempty,email" format:"email" example:"new_ivan@example.com"`
+	// Email — новый адрес электронной почты (опционально).
+	Email *string `json:"email" format:"email" example:"new_ivan@example.com"`
 
-	// Name — новое имя пользователя (опционально, до 100 символов).
-	Name *string `json:"name" validate:"omitempty,max=100" maxLength:"100" example:"Иван Петров"`
+	// Name — новое имя пользователя (опционально).
+	Name *string `json:"name" example:"Иван Петров"`
 }
 
 // ErrorResponse представляет стандартный формат ответа API при возникновении ошибки.
