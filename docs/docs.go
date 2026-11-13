@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/todos": {
+        "/todos/": {
             "get": {
-                "description": "Возвращает массив объектов Todo, обернутый в стандартный SuccessResponse",
+                "description": "Возвращает массив объектов Todo, обернутый в стандартный SuccessResponse. Если задач нет, поле data возвращает null.",
                 "produces": [
                     "application/json"
                 ],
@@ -27,7 +27,7 @@ const docTemplate = `{
                 "summary": "Получить список всех задач",
                 "responses": {
                     "200": {
-                        "description": "Успешное получение списка задач",
+                        "description": "Успешное получение списка задач (поле data равно null, если список пуст)",
                         "schema": {
                             "allOf": [
                                 {
@@ -46,12 +46,6 @@ const docTemplate = `{
                                 }
                             ]
                         }
-                    },
-                    "500": {
-                        "description": "Внутренняя ошибка сервера",
-                        "schema": {
-                            "$ref": "#/definitions/models.ErrorResponse"
-                        }
                     }
                 }
             },
@@ -61,7 +55,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/plain"
                 ],
                 "tags": [
                     "todos"
@@ -110,7 +105,8 @@ const docTemplate = `{
             "get": {
                 "description": "Возвращает одну задачу по переданному числовому идентификатору",
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/plain"
                 ],
                 "tags": [
                     "todos"
@@ -118,7 +114,6 @@ const docTemplate = `{
                 "summary": "Получить задачу по ID",
                 "parameters": [
                     {
-                        "minimum": 1,
                         "type": "integer",
                         "description": "Идентификатор задачи",
                         "name": "id",
@@ -165,7 +160,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/plain"
                 ],
                 "tags": [
                     "todos"
@@ -173,7 +169,6 @@ const docTemplate = `{
                 "summary": "Обновить существующую задачу",
                 "parameters": [
                     {
-                        "minimum": 1,
                         "type": "integer",
                         "description": "Идентификатор задачи",
                         "name": "id",
@@ -225,13 +220,15 @@ const docTemplate = `{
             },
             "delete": {
                 "description": "Удаляет задачу по её числовому идентификатору",
+                "produces": [
+                    "text/plain"
+                ],
                 "tags": [
                     "todos"
                 ],
                 "summary": "Удалить задачу",
                 "parameters": [
                     {
-                        "minimum": 1,
                         "type": "integer",
                         "description": "Идентификатор задачи",
                         "name": "id",
@@ -258,9 +255,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/users": {
+        "/users/": {
             "get": {
-                "description": "Возвращает массив всех зарегистрированных пользователей",
+                "description": "Возвращает массив всех зарегистрированных пользователей. Если пользователей нет, поле data возвращает null.",
                 "produces": [
                     "application/json"
                 ],
@@ -270,7 +267,7 @@ const docTemplate = `{
                 "summary": "Получить список пользователей",
                 "responses": {
                     "200": {
-                        "description": "Список пользователей успешно получен",
+                        "description": "Список пользователей успешно получен (поле data равно null, если список пуст)",
                         "schema": {
                             "allOf": [
                                 {
@@ -298,7 +295,8 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/plain"
                 ],
                 "tags": [
                     "users"
@@ -344,13 +342,66 @@ const docTemplate = `{
             }
         },
         "/users/{id}": {
+            "get": {
+                "description": "Возвращает данные одного пользователя по его числовому идентификатору",
+                "produces": [
+                    "application/json",
+                    "text/plain"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Получить пользователя по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Идентификатор пользователя",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Пользователь успешно найден",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/models.SuccessResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.User"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID (некорректный формат)",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Пользователь не найден",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "Обновляет поля пользователя по его числовому ID (email, имя)",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
-                    "application/json"
+                    "application/json",
+                    "text/plain"
                 ],
                 "tags": [
                     "users"
@@ -358,7 +409,6 @@ const docTemplate = `{
                 "summary": "Обновить пользователя",
                 "parameters": [
                     {
-                        "minimum": 1,
                         "type": "integer",
                         "description": "Идентификатор пользователя",
                         "name": "id",
@@ -410,13 +460,15 @@ const docTemplate = `{
             },
             "delete": {
                 "description": "Удаляет пользователя из системы по его числовому идентификатору",
+                "produces": [
+                    "text/plain"
+                ],
                 "tags": [
                     "users"
                 ],
                 "summary": "Удалить пользователя",
                 "parameters": [
                     {
-                        "minimum": 1,
                         "type": "integer",
                         "description": "Идентификатор пользователя",
                         "name": "id",
@@ -448,15 +500,10 @@ const docTemplate = `{
         "models.CreateTodoRequest": {
             "description": "Данные для создания новой задачи (DTO)",
             "type": "object",
-            "required": [
-                "title",
-                "user_id"
-            ],
             "properties": {
                 "description": {
-                    "description": "Description — подробное описание задачи (опционально, до 1000 символов).",
+                    "description": "Description — подробное описание задачи.",
                     "type": "string",
-                    "maxLength": 1000,
                     "example": "Купить молоко, хлеб и яблоки"
                 },
                 "done": {
@@ -465,13 +512,12 @@ const docTemplate = `{
                     "example": false
                 },
                 "title": {
-                    "description": "Title — заголовок задачи (обязательное поле, до 200 символов).",
+                    "description": "Title — заголовок задачи.",
                     "type": "string",
-                    "maxLength": 200,
                     "example": "Купить продукты"
                 },
                 "user_id": {
-                    "description": "UserID — идентификатор пользователя, создающего задачу (обязательное поле).",
+                    "description": "UserID — идентификатор пользователя, создающего задачу.",
                     "type": "integer",
                     "example": 1
                 }
@@ -480,38 +526,17 @@ const docTemplate = `{
         "models.CreateUserRequest": {
             "description": "Данные для регистрации нового пользователя (DTO)",
             "type": "object",
-            "required": [
-                "email",
-                "name"
-            ],
             "properties": {
                 "email": {
-                    "description": "Email — адрес электронной почты (обязательное поле, должен быть валидным email).",
+                    "description": "Email — адрес электронной почты.",
                     "type": "string",
                     "format": "email",
                     "example": "ivan@example.com"
                 },
                 "name": {
-                    "description": "Name — имя пользователя (обязательное поле, до 100 символов).",
+                    "description": "Name — имя пользователя.",
                     "type": "string",
-                    "maxLength": 100,
                     "example": "Иван Иванов"
-                }
-            }
-        },
-        "models.ErrorResponse": {
-            "description": "Стандартный формат ответа API при возникновении ошибки",
-            "type": "object",
-            "properties": {
-                "error": {
-                    "description": "Error — машиночитаемый код или краткое обозначение ошибки.",
-                    "type": "string",
-                    "example": "not_found"
-                },
-                "message": {
-                    "description": "Message — понятное человеку описание возникшей ошибки.",
-                    "type": "string",
-                    "example": "Запрашиваемый ресурс не найден"
                 }
             }
         },
@@ -576,9 +601,8 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "description": {
-                    "description": "Description — новое описание задачи (опционально, до 1000 символов).",
+                    "description": "Description — новое описание задачи (опционально).",
                     "type": "string",
-                    "maxLength": 1000,
                     "example": "Купить безлактозное молоко и цельнозерновой хлеб"
                 },
                 "done": {
@@ -587,9 +611,8 @@ const docTemplate = `{
                     "example": true
                 },
                 "title": {
-                    "description": "Title — новый заголовок задачи (опционально, до 200 символов).",
+                    "description": "Title — новый заголовок задачи (опционально).",
                     "type": "string",
-                    "maxLength": 200,
                     "example": "Купить продукты (обновлено)"
                 }
             }
@@ -599,15 +622,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "email": {
-                    "description": "Email — новый адрес электронной почты (опционально, должен быть валидным email).",
+                    "description": "Email — новый адрес электронной почты (опционально).",
                     "type": "string",
                     "format": "email",
                     "example": "new_ivan@example.com"
                 },
                 "name": {
-                    "description": "Name — новое имя пользователя (опционально, до 100 символов).",
+                    "description": "Name — новое имя пользователя (опционально).",
                     "type": "string",
-                    "maxLength": 100,
                     "example": "Иван Петров"
                 }
             }
