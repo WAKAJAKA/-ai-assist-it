@@ -21,12 +21,6 @@ type UserHandler struct {
 	nextID int
 }
 // NewUserHandler создает и инициализирует новый экземпляр UserHandler.
-// @Summary      Инициализировать обработчик пользователей
-// @Description  Создает новый экземпляр UserHandler с пустым хранилищем пользователей
-// @Tags         users
-// @Produce      json
-// @Success      200  {object}  models.SuccessResponse  "Обработчик успешно инициализирован"
-// @Router       /users/init [get]
 func NewUserHandler() *UserHandler {
 	return &UserHandler{
 		users:  make(map[int]models.User),

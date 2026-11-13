@@ -20,12 +20,6 @@ type TodoHandler struct {
 }
 
 // NewTodoHandler создает и инициализирует новый экземпляр TodoHandler.
-// @Summary      Инициализировать обработчик задач
-// @Description  Создает новый экземпляр TodoHandler с пустым хранилищем задач
-// @Tags         todos
-// @Produce      json
-// @Success      200  {object}  models.SuccessResponse  "Обработчик успешно инициализирован"
-// @Router       /todos/init [get]
 func NewTodoHandler() *TodoHandler {
 	return &TodoHandler{
 		todos:  make(map[int]models.Todo),
