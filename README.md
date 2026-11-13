@@ -99,7 +99,7 @@ swag init -g main.go --parseInternal
 **1. Получить список всех пользователей**
 
 ```bash
-curl -X GET http://localhost:8080/api/v1/users -H "Accept: application/json"
+curl -X GET http://localhost:8080/api/v1/users/ -H "Accept: application/json"
 ```
 
 Если пользователи ещё не созданы, сервер вернёт `null` в поле `data`:
@@ -114,7 +114,7 @@ curl -X GET http://localhost:8080/api/v1/users -H "Accept: application/json"
 **2. Создать нового пользователя**
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/users \
+curl -X POST http://localhost:8080/api/v1/users/ \
   -H "Content-Type: application/json" \
   -d '{"email": "test@mail.com", "name": "Иван"}'
 ```
@@ -162,7 +162,7 @@ curl -i -X DELETE http://localhost:8080/api/v1/users/1
 **1. Получить список всех задач**
 
 ```bash
-curl -X GET http://localhost:8080/api/v1/todos -H "Accept: application/json"
+curl -X GET http://localhost:8080/api/v1/todos/ -H "Accept: application/json"
 ```
 
 Если задачи ещё не созданы, сервер вернёт `null` в поле `data`:
