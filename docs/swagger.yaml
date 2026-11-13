@@ -1,0 +1,430 @@
+basePath: /api/v1
+definitions:
+  models.CreateTodoRequest:
+    description: Данные для создания новой задачи (DTO)
+    properties:
+      description:
+        description: Description — подробное описание задачи (опционально, до 1000
+          символов).
+        example: Купить молоко, хлеб и яблоки
+        maxLength: 1000
+        type: string
+      done:
+        description: Done — начальный статус выполнения задачи.
+        example: false
+        type: boolean
+      title:
+        description: Title — заголовок задачи (обязательное поле, до 200 символов).
+        example: Купить продукты
+        maxLength: 200
+        type: string
+      user_id:
+        description: UserID — идентификатор пользователя, создающего задачу (обязательное
+          поле).
+        example: 1
+        type: integer
+    required:
+    - title
+    - user_id
+    type: object
+  models.CreateUserRequest:
+    description: Данные для регистрации нового пользователя (DTO)
+    properties:
+      email:
+        description: Email — адрес электронной почты (обязательное поле, должен быть
+          валидным email).
+        example: ivan@example.com
+        format: email
+        type: string
+      name:
+        description: Name — имя пользователя (обязательное поле, до 100 символов).
+        example: Иван Иванов
+        maxLength: 100
+        type: string
+    required:
+    - email
+    - name
+    type: object
+  models.ErrorResponse:
+    description: Стандартный формат ответа API при возникновении ошибки
+    properties:
+      error:
+        description: Error — машиночитаемый код или краткое обозначение ошибки.
+        example: not_found
+        type: string
+      message:
+        description: Message — понятное человеку описание возникшей ошибки.
+        example: Запрашиваемый ресурс не найден
+        type: string
+    type: object
+  models.SuccessResponse:
+    description: Стандартная обёртка для успешного ответа API с полезной нагрузкой
+    properties:
+      data:
+        description: Data содержит полезную нагрузку ответа (может быть опущено, если
+          данных нет).
+        type: object
+      success:
+        description: Success указывает на успешность выполнения операции.
+        example: true
+        type: boolean
+    type: object
+  models.Todo:
+    description: Модель задачи с полной информацией о статусе и времени создания
+    properties:
+      created_at:
+        description: CreatedAt — метка времени создания записи.
+        example: "2026-03-30T10:00:00Z"
+        type: string
+      description:
+        description: Description — подробное описание задачи.
+        example: Купить молоко, хлеб и сыр
+        type: string
+      done:
+        description: Done указывает, завершена ли задача.
+        example: false
+        type: boolean
+      id:
+        description: ID — уникальный идентификатор задачи.
+        example: 1
+        type: integer
+      title:
+        description: Title — краткий заголовок задачи.
+        example: Купить продукты
+        type: string
+      updated_at:
+        description: UpdatedAt — метка времени последнего обновления записи.
+        example: "2026-03-30T10:00:00Z"
+        type: string
+      user_id:
+        description: UserID — идентификатор пользователя, которому принадлежит задача.
+        example: 1
+        type: integer
+    type: object
+  models.UpdateTodoRequest:
+    description: Данные для частичного обновления задачи (все поля опциональны)
+    properties:
+      description:
+        description: Description — новое описание задачи (опционально, до 1000 символов).
+        example: Купить безлактозное молоко и цельнозерновой хлеб
+        maxLength: 1000
+        type: string
+      done:
+        description: Done — новый статус выполнения задачи (опционально).
+        example: true
+        type: boolean
+      title:
+        description: Title — новый заголовок задачи (опционально, до 200 символов).
+        example: Купить продукты (обновлено)
+        maxLength: 200
+        type: string
+    type: object
+  models.UpdateUserRequest:
+    description: Данные для частичного обновления профиля пользователя (все поля опциональны)
+    properties:
+      email:
+        description: Email — новый адрес электронной почты (опционально, должен быть
+          валидным email).
+        example: new_ivan@example.com
+        format: email
+        type: string
+      name:
+        description: Name — новое имя пользователя (опционально, до 100 символов).
+        example: Иван Петров
+        maxLength: 100
+        type: string
+    type: object
+  models.User:
+    description: Модель пользователя с базовыми регистрационными данными
+    properties:
+      created_at:
+        description: CreatedAt — дата и время регистрации пользователя.
+        example: "2026-03-30T10:00:00Z"
+        type: string
+      email:
+        description: Email — адрес электронной почты пользователя.
+        example: ivan@example.com
+        format: email
+        type: string
+      id:
+        description: ID — уникальный идентификатор пользователя.
+        example: 1
+        type: integer
+      name:
+        description: Name — имя или отображаемое имя пользователя.
+        example: Иван Иванов
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API for managing users and todo items
+  title: Todo API Service
+  version: "1.0"
+paths:
+  /todos:
+    get:
+      description: Возвращает массив объектов Todo, обернутый в стандартный SuccessResponse
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение списка задач
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.Todo'
+                  type: array
+              type: object
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Получить список всех задач
+      tags:
+      - todos
+    post:
+      consumes:
+      - application/json
+      description: Создает задачу на основе переданного JSON и возвращает созданный
+        объект
+      parameters:
+      - description: Данные для создания задачи
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTodoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Задача успешно создана
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Todo'
+              type: object
+        "400":
+          description: Невалидный запрос (ошибка парсинга JSON)
+          schema:
+            type: string
+      summary: Создать новую задачу
+      tags:
+      - todos
+  /todos/{id}:
+    delete:
+      description: Удаляет задачу по её числовому идентификатору
+      parameters:
+      - description: Идентификатор задачи
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Задача успешно удалена (нет содержимого)
+        "400":
+          description: Неверный ID (некорректный формат)
+          schema:
+            type: string
+        "404":
+          description: Задача не найдена
+          schema:
+            type: string
+      summary: Удалить задачу
+      tags:
+      - todos
+    get:
+      description: Возвращает одну задачу по переданному числовому идентификатору
+      parameters:
+      - description: Идентификатор задачи
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Задача успешно найдена
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Todo'
+              type: object
+        "400":
+          description: Неверный ID (некорректный формат)
+          schema:
+            type: string
+        "404":
+          description: Задача не найдена
+          schema:
+            type: string
+      summary: Получить задачу по ID
+      tags:
+      - todos
+    put:
+      consumes:
+      - application/json
+      description: Обновляет поля задачи по её числовому идентификатору
+      parameters:
+      - description: Идентификатор задачи
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления задачи
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateTodoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Задача успешно обновлена
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Todo'
+              type: object
+        "400":
+          description: Неверный ID или невалидный JSON
+          schema:
+            type: string
+        "404":
+          description: Задача не найдена
+          schema:
+            type: string
+      summary: Обновить существующую задачу
+      tags:
+      - todos
+  /users:
+    get:
+      description: Возвращает массив всех зарегистрированных пользователей
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список пользователей успешно получен
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.SuccessResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/models.User'
+                  type: array
+              type: object
+      summary: Получить список пользователей
+      tags:
+      - users
+    post:
+      consumes:
+      - application/json
+      description: Создает нового пользователя с указанным email и именем
+      parameters:
+      - description: Данные нового пользователя
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Пользователь успешно создан
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "400":
+          description: Невалидный запрос (ошибка парсинга JSON)
+          schema:
+            type: string
+      summary: Создать пользователя
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Удаляет пользователя из системы по его числовому идентификатору
+      parameters:
+      - description: Идентификатор пользователя
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Пользователь успешно удален (нет содержимого)
+        "400":
+          description: Неверный ID (некорректный формат)
+          schema:
+            type: string
+        "404":
+          description: Пользователь не найден
+          schema:
+            type: string
+      summary: Удалить пользователя
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Обновляет поля пользователя по его числовому ID (email, имя)
+      parameters:
+      - description: Идентификатор пользователя
+        in: path
+        minimum: 1
+        name: id
+        required: true
+        type: integer
+      - description: Данные для обновления пользователя
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Пользователь успешно обновлен
+          schema:
+            allOf:
+            - $ref: '#/definitions/models.SuccessResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.User'
+              type: object
+        "400":
+          description: Неверный ID или невалидный JSON
+          schema:
+            type: string
+        "404":
+          description: Пользователь не найден
+          schema:
+            type: string
+      summary: Обновить пользователя
+      tags:
+      - users
+swagger: "2.0"
