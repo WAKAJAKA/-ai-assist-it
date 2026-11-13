@@ -26,15 +26,13 @@ func NewTodoHandler() *TodoHandler {
 		nextID: 1,
 	}
 }
-
 // ListTodos возвращает список всех существующих задач.
 // @Summary      Получить список всех задач
-// @Description  Возвращает массив объектов Todo, обернутый в стандартный SuccessResponse
+// @Description  Возвращает массив объектов Todo, обернутый в стандартный SuccessResponse. Если задач нет, поле data возвращает null.
 // @Tags         todos
 // @Produce      json
-// @Success      200  {object}  models.SuccessResponse{data=[]models.Todo}  "Успешное получение списка задач"
-// @Failure      500  {object}  models.ErrorResponse                        "Внутренняя ошибка сервера"
-// @Router       /todos [get]
+// @Success      200  {object}  models.SuccessResponse{data=[]models.Todo}  "Успешное получение списка задач (поле data равно null, если список пуст)"
+// @Router       /todos/  [get]
 func (h *TodoHandler) ListTodos(w http.ResponseWriter, r *http.Request) {
 	var todos []models.Todo
 	for _, todo := range h.todos {
@@ -53,8 +51,8 @@ func (h *TodoHandler) ListTodos(w http.ResponseWriter, r *http.Request) {
 // @Summary      Получить задачу по ID
 // @Description  Возвращает одну задачу по переданному числовому идентификатору
 // @Tags         todos
-// @Produce      json
-// @Param        id   path      int                                       true  "Идентификатор задачи"  minimum(1)
+// @Produce      json,plain
+// @Param        id   path      int                                       true  "Идентификатор задачи"
 // @Success      200  {object}  models.SuccessResponse{data=models.Todo}  "Задача успешно найдена"
 // @Failure      400  {string}  string                                    "Неверный ID (некорректный формат)"
 // @Failure      404  {string}  string                                    "Задача не найдена"
@@ -86,11 +84,11 @@ func (h *TodoHandler) GetTodo(w http.ResponseWriter, r *http.Request) {
 // @Description  Создает задачу на основе переданного JSON и возвращает созданный объект
 // @Tags         todos
 // @Accept       json
-// @Produce      json
+// @Produce      json,plain
 // @Param        body  body      models.CreateTodoRequest                  true  "Данные для создания задачи"
 // @Success      201   {object}  models.SuccessResponse{data=models.Todo}  "Задача успешно создана"
 // @Failure      400   {string}  string                                    "Невалидный запрос (ошибка парсинга JSON)"
-// @Router       /todos [post]
+// @Router       /todos/ [post]
 func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 	var req models.CreateTodoRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -125,8 +123,8 @@ func (h *TodoHandler) CreateTodo(w http.ResponseWriter, r *http.Request) {
 // @Description  Обновляет поля задачи по её числовому идентификатору
 // @Tags         todos
 // @Accept       json
-// @Produce      json
-// @Param        id    path      int                       true  "Идентификатор задачи"       minimum(1)
+// @Produce      json,plain
+// @Param        id    path      int                       true  "Идентификатор задачи"
 // @Param        body  body      models.UpdateTodoRequest  true  "Данные для обновления задачи"
 // @Success      200   {object}  models.SuccessResponse{data=models.Todo}  "Задача успешно обновлена"
 // @Failure      400   {string}  string                                    "Неверный ID или невалидный JSON"
@@ -177,7 +175,8 @@ func (h *TodoHandler) UpdateTodo(w http.ResponseWriter, r *http.Request) {
 // @Summary      Удалить задачу
 // @Description  Удаляет задачу по её числовому идентификатору
 // @Tags         todos
-// @Param        id   path      int     true  "Идентификатор задачи"  minimum(1)
+// @Produce      plain
+// @Param        id   path      int     true  "Идентификатор задачи"
 // @Success      204  "Задача успешно удалена (нет содержимого)"
 // @Failure      400  {string}  string  "Неверный ID (некорректный формат)"
 // @Failure      404  {string}  string  "Задача не найдена"
